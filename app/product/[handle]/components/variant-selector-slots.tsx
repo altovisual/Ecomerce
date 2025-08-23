@@ -1,3 +1,5 @@
+'use client';
+
 import { VariantOptionSelector } from '@/components/products/variant-selector';
 import { Product } from '@/lib/shopify/types';
 
