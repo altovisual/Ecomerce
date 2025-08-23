@@ -31,7 +31,7 @@ function adaptCartLine(shopifyLine: ShopifyCartLine): CartItem {
       title: merchandise.title,
       selectedOptions: merchandise.selectedOptions || [],
       product: {
-        id: product.title,
+        id: product.id,
         title: product.title,
         handle: product.handle,
         categoryId: undefined,
