@@ -34,6 +34,12 @@ interface VariantOptionSelectorProps extends VariantProps<typeof variantOptionSe
 
 export function VariantOptionSelector({ option, variant, product }: VariantOptionSelectorProps) {
   const { variants, options } = product;
+
+  // Conditionally render only on client side
+  if (typeof window === 'undefined') {
+    return null; // Or a placeholder for server-side rendering
+  }
+
   const searchParams = useSearchParams();
   const pathname = useParams<{ handle?: string }>();
   const optionNameLowerCase = option.name.toLowerCase();
@@ -168,6 +174,11 @@ export function VariantOptionSelector({ option, variant, product }: VariantOptio
 }
 
 export const useSelectedVariant = (product: Product) => {
+  // Conditionally execute hook only on client side
+  if (typeof window === 'undefined') {
+    return undefined; // Or a default value
+  }
+
   const { variants, options } = product;
   const searchParams = useSearchParams();
 
@@ -218,8 +229,6 @@ export const useProductImages = (product: Product | CartProduct, selectedOptions
   // by matching the image alt text with variant names (e.g., "Red Shirt" shows when Red is selected)
   const variantImagesByAlt = useMemo(() => {
     if (!optionsObject || Object.keys(optionsObject).length === 0) return [];
-
-    const selectedValues = Object.values(optionsObject);
 
     return images.filter(image => {
       if (!image.altText) return false;
