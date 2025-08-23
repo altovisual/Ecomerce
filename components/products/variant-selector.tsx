@@ -34,12 +34,6 @@ interface VariantOptionSelectorProps extends VariantProps<typeof variantOptionSe
 
 export function VariantOptionSelector({ option, variant, product }: VariantOptionSelectorProps) {
   const { variants, options } = product;
-
-  // Conditionally render only on client side
-  if (typeof window === 'undefined') {
-    return null; // Or a placeholder for server-side rendering
-  }
-
   const searchParams = useSearchParams();
   const pathname = useParams<{ handle?: string }>();
   const optionNameLowerCase = option.name.toLowerCase();
@@ -172,6 +166,108 @@ export function VariantOptionSelector({ option, variant, product }: VariantOptio
     </dl>
   );
 }
+
+export const useSelectedVariant = (product: Product) => {
+  const { variants, options } = product;
+  const searchParams = useSearchParams();
+
+  // Get all current selected options from URL
+  const getCurrentSelectedOptions = () => {
+    const state: Record<string, string> = {};
+
+    options.forEach(option => {
+      const key = option.name.toLowerCase();
+      const value = searchParams.get(key);
+      if (value) {
+        state[key] = value;
+      }
+    });
+
+    return state;
+  };
+
+  const selectedOptions = getCurrentSelectedOptions();
+
+  // Find the variant that matches all selected options
+  const selectedVariant = Array.isArray(variants)
+    ? variants.find((variant: ProductVariant) =>
+        variant.selectedOptions.every(option => option.value === selectedOptions[option.name.toLowerCase()])
+      )
+    : undefined;
+
+  return selectedVariant;
+};
+
+export const useProductImages = (product: Product | CartProduct, selectedOptions?: SelectedOptions) => {
+  const images = useMemo(() => {
+    return Array.isArray(product.images) ? product.images : [];
+  }, [product.images]);
+
+  const optionsObject = useMemo(() => {
+    return selectedOptions?.reduce(
+      (acc, option) => {
+        acc[option.name.toLowerCase()] = option.value.toLowerCase();
+        return acc;
+      },
+      {} as Record<string, string>
+    );
+  }, [selectedOptions]);
+
+  // Try to match images by alt text with selected variant values
+  // This enables Shopify products to show different images when variants are selected
+  // by matching the image alt text with variant names (e.g., "Red Shirt" shows when Red is selected)
+  const variantImagesByAlt = useMemo(() => {
+    if (!optionsObject || Object.keys(optionsObject).length === 0) return [];
+
+    const selectedValues = Object.values(optionsObject);
+
+    return images.filter(image => {
+      if (!image.altText) return false;
+
+      const altTextLower = image.altText.toLowerCase();
+
+      // Check if any selected variant value is mentioned in the alt text
+      return selectedValues.some(value => altTextLower.includes(value.toLowerCase()));
+    });
+  }, [optionsObject, images]);
+
+  // Original logic for images with selectedOptions metadata
+  const variantImages = useMemo(() => {
+    if (!optionsObject) return [];
+
+    return images.filter(image => {
+      return Object.entries(optionsObject || {}).every(([key, value]) =>
+        image.selectedOptions?.some(option => option.name === key && option.value === value)
+      );
+    });
+  }, [optionsObject, images]);
+
+  const defaultImages = images.filter(image => !image.selectedOptions);
+  const featuredImage = product.featuredImage;
+
+  // Prioritize images with selectedOptions metadata first
+  if (variantImages.length > 0) {
+    return variantImages;
+  }
+
+  // Then try images matched by alt text (for Shopify products with 2+ variants)
+  if (variantImagesByAlt.length > 0) {
+    return variantImagesByAlt;
+  }
+
+  // Fall back to default images
+  if (defaultImages.length > 0) {
+    return defaultImages;
+  }
+
+  // Final fallback to featured image
+  if (featuredImage) {
+    return [featuredImage];
+  }
+
+  // Ultimate fallback - return first image or empty array
+  return images.length > 0 ? [images[0]] : [];
+};
 
 export const useSelectedVariant = (product: Product) => {
   // Conditionally execute hook only on client side

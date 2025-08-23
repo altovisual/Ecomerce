@@ -25,18 +25,19 @@ import { MobileGallerySlider } from './components/mobile-gallery-slider';
 import { DesktopGallery } from './components/desktop-gallery';
 
 // Generate static params for all products at build time
-export async function generateStaticParams() {
-  try {
-    const products = await getProducts({ limit: 100 }); // Get first 100 products
+// Generate static params for all products at build time
+// export async function generateStaticParams() {
+//   try {
+//     const products = await getProducts({ limit: 100 }); // Get first 100 products
 
-    return products.map(product => ({
-      handle: product.handle,
-    }));
-  } catch (error) {
-    console.error('Error generating static params for products:', error);
-    return [];
-  }
-}
+//     return products.map(product => ({
+//       handle: product.handle,
+//     }));
+//   } catch (error) {
+//     console.error('Error generating static params for products:', error);
+//     return [];
+//   }
+// }
 
 // Enable ISR with 1 minute revalidation
 export const revalidate = 60;
