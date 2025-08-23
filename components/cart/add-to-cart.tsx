@@ -127,6 +127,8 @@ export function AddToCartButton({
   );
 }
 
+import { AddToCartClientLogic } from './add-to-cart-client-logic';
+
 export function AddToCart({
   product,
   className,
@@ -134,26 +136,9 @@ export function AddToCart({
   icon = <PlusCircleIcon />,
   ...buttonProps
 }: AddToCartProps) {
-  const { variants } = product;
-  const selectedVariant = useSelectedVariant(product);
-  const pathname = useParams<{ handle?: string }>();
-  const searchParams = useSearchParams();
-
-  const hasNoVariants = variants.length === 0;
-  const defaultVariantId = variants.length === 1 ? variants[0]?.id : undefined;
-  const selectedVariantId = selectedVariant?.id || defaultVariantId;
-  const isTargetingProduct = pathname.handle === product.id || searchParams.get('pid') === product.id;
-
-  const resolvedVariant = useMemo(() => {
-    if (hasNoVariants) return getBaseProductVariant(product);
-    if (!isTargetingProduct && !defaultVariantId) return undefined;
-    return variants.find(variant => variant.id === selectedVariantId);
-  }, [hasNoVariants, product, isTargetingProduct, defaultVariantId, variants, selectedVariantId]);
-
   return (
-    <AddToCartButton
+    <AddToCartClientLogic
       product={product}
-      selectedVariant={resolvedVariant}
       className={className}
       iconOnly={iconOnly}
       icon={icon}
