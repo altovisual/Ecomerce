@@ -269,41 +269,7 @@ export const useProductImages = (product: Product | CartProduct, selectedOptions
   return images.length > 0 ? [images[0]] : [];
 };
 
-export const useSelectedVariant = (product: Product) => {
-  // Conditionally execute hook only on client side
-  if (typeof window === 'undefined') {
-    return undefined; // Or a default value
-  }
 
-  const { variants, options } = product;
-  const searchParams = useSearchParams();
-
-  // Get all current selected options from URL
-  const getCurrentSelectedOptions = () => {
-    const state: Record<string, string> = {};
-
-    options.forEach(option => {
-      const key = option.name.toLowerCase();
-      const value = searchParams.get(key);
-      if (value) {
-        state[key] = value;
-      }
-    });
-
-    return state;
-  };
-
-  const selectedOptions = getCurrentSelectedOptions();
-
-  // Find the variant that matches all selected options
-  const selectedVariant = Array.isArray(variants)
-    ? variants.find((variant: ProductVariant) =>
-        variant.selectedOptions.every(option => option.value === selectedOptions[option.name.toLowerCase()])
-      )
-    : undefined;
-
-  return selectedVariant;
-};
 
 export const useProductImages = (product: Product | CartProduct, selectedOptions?: SelectedOptions) => {
   const images = useMemo(() => {
