@@ -207,63 +207,43 @@ export default function CartModal() {
 function CheckoutButton() {
   const { pending } = useFormStatus();
   const { cart, isPending } = useCart();
-  const router = useRouter();
+  // const router = useRouter(); // No longer needed if not redirecting
 
-  const checkoutUrl = cart?.checkoutUrl;
+  const checkoutUrl = cart?.checkoutUrl; // Still needed for isDisabled logic
 
   const isLoading = pending;
-  const isDisabled = !checkoutUrl || isPending;
+  // Button will always be disabled if checkoutUrl is not present, or if isPending is true
+  // To make it permanently non-functional, we can just set isDisabled to true
+  const isDisabled = true; // Make it always disabled
 
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button
-          type="button" // Changed to button type to prevent form submission
-          disabled={isDisabled}
-          size="lg"
-          className="flex relative gap-3 justify-between items-center w-full"
+    // Removed AlertDialog wrapper
+    <Button
+      type="button" // Changed to button type to prevent form submission
+      disabled={isDisabled} // Will always be true now
+      size="lg"
+      className="flex relative gap-3 justify-between items-center w-full"
+      // Removed onClick handler
+    >
+      <AnimatePresence initial={false} mode="wait">
+        <motion.div
+          key={isLoading ? 'loading' : 'content'}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.15 }}
+          className="flex justify-center items-center w-full"
         >
-          <AnimatePresence initial={false} mode="wait">
-            <motion.div
-              key={isLoading ? 'loading' : 'content'}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.15 }}
-              className="flex justify-center items-center w-full"
-            >
-              {isLoading ? (
-                <Loader size="default" />
-              ) : (
-                <div className="flex justify-between items-center w-full">
-                  <span>Proceed to Checkout</span>
-                  <ArrowRight className="size-6" />
-                </div>
-              )}
-            </motion.div>
-          </AnimatePresence>
-        </Button>
-      </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Proceed to Checkout?</AlertDialogTitle>
-          <AlertDialogDescription>
-            You will be redirected to a secure checkout page to complete your purchase.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction
-            onClick={() => {
-              if (checkoutUrl) {
-                router.push(checkoutUrl);
-              }
-            }}
-          >
-            Proceed
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+          {isLoading ? (
+            <Loader size="default" />
+          ) : (
+            <div className="flex justify-between items-center w-full">
+              <span>Checkout Disabled</span> {/* Changed text */}
+              <ArrowRight className="size-6" />
+            </div>
+          )}
+        </motion.div>
+      </AnimatePresence>
+    </Button>
   );
 }
