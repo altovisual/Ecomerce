@@ -33,7 +33,7 @@ export function SidebarLinks({ className, invert, size }: SidebarLinksProps) {
         <li key={link.href}>
           <span className={linkVariants({ invert, size })}>
             {link.label}
-          </Link>
+                    </span>
         </li>
       ))}
     </ul>
