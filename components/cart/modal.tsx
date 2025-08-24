@@ -14,6 +14,17 @@ import { useBodyScrollLock } from '@/lib/hooks/use-body-scroll-lock';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { Cart } from '../../lib/shopify/types';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '../ui/alert-dialog';
 
 const CartContainer = ({ children, className }: { children: React.ReactNode; className?: string }) => {
   return <div className={cn('px-3 md:px-4', className)}>{children}</div>;
@@ -204,36 +215,55 @@ function CheckoutButton() {
   const isDisabled = !checkoutUrl || isPending;
 
   return (
-    <Button
-      type="submit"
-      disabled={isDisabled}
-      size="lg"
-      className="flex relative gap-3 justify-between items-center w-full"
-      onClick={() => {
-        if (checkoutUrl) {
-          router.push(checkoutUrl);
-        }
-      }}
-    >
-      <AnimatePresence initial={false} mode="wait">
-        <motion.div
-          key={isLoading ? 'loading' : 'content'}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.15 }}
-          className="flex justify-center items-center w-full"
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button
+          type="button" // Changed to button type to prevent form submission
+          disabled={isDisabled}
+          size="lg"
+          className="flex relative gap-3 justify-between items-center w-full"
         >
-          {isLoading ? (
-            <Loader size="default" />
-          ) : (
-            <div className="flex justify-between items-center w-full">
-              <span>Proceed to Checkout</span>
-              <ArrowRight className="size-6" />
-            </div>
-          )}
-        </motion.div>
-      </AnimatePresence>
-    </Button>
+          <AnimatePresence initial={false} mode="wait">
+            <motion.div
+              key={isLoading ? 'loading' : 'content'}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              className="flex justify-center items-center w-full"
+            >
+              {isLoading ? (
+                <Loader size="default" />
+              ) : (
+                <div className="flex justify-between items-center w-full">
+                  <span>Proceed to Checkout</span>
+                  <ArrowRight className="size-6" />
+                </div>
+              )}
+            </motion.div>
+          </AnimatePresence>
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Proceed to Checkout?</AlertDialogTitle>
+          <AlertDialogDescription>
+            You will be redirected to a secure checkout page to complete your purchase.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={() => {
+              if (checkoutUrl) {
+                router.push(checkoutUrl);
+              }
+            }}
+          >
+            Proceed
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
